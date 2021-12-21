@@ -13,30 +13,19 @@ import (
 	"time"
 )
 
-var translate *Translate
 
-func init() {
-	translate = &Translate{}
+func New() *Translate {
+	return &Translate{
+		client: &http.Client{Timeout: 20 * time.Second},
+	}
 }
-
-func Trans(sourceLang string, targetLang string, text []string) ([]string, error) {
-	return translate.Translate(sourceLang, targetLang, text)
-}
-
-
 
 type Translate struct {
+	client *http.Client
 }
 
+
 func (this *Translate) Translate(sourceLang string, targetLang string, text []string) ([]string, error) {
-	client := &http.Client{
-		Timeout: 20*time.Second,
-		Transport: &http.Transport{
-			//Proxy: func(_ *http.Request) (*url.URL, error) {
-			//	return url.Parse("socket5://127.0.0.1:7890")
-			//},
-		},
-	}
 	queryString := ""
 	for _, v := range text {
 		queryString += fmt.Sprintf("&q=%s", url.QueryEscape(v))
@@ -130,7 +119,7 @@ func (this *Translate) Translate(sourceLang string, targetLang string, text []st
 			continue
 		}
 		request.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36")
-		resp, err = client.Do(request)
+		resp, err = this.client.Do(request)
 		if err == nil && resp.StatusCode == 200 {
 			break
 		}
@@ -215,4 +204,18 @@ func (this *Translate) hq(char int, chunk string) int {
 		}
 	}
 	return char
+}
+
+
+func (this *Translate) SetProxy(proxyURL string) error {
+	proxy ,err := url.Parse(proxyURL)
+	if err != nil {
+		return err
+	}
+	this.client.Transport = &http.Transport{
+		Proxy: func(_ *http.Request) (*url.URL, error) {
+			return proxy, nil
+		},
+	}
+	return nil
 }

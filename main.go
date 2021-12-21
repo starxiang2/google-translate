@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
-	fmt.Println(translate.Trans(language.CN, "or", []string{"大家好"}))
-	fmt.Println(translate.Trans(language.EN, language.CN, []string{"Hello everyone"}))
+	trans := translate.New()
+	trans.SetProxy("http://127.0.0.1:7890")
+	fmt.Println(trans.Translate(language.CN, "or", []string{"大家好"}))
 }
