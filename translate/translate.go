@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var translate *Translate
@@ -22,18 +23,102 @@ func Trans(sourceLang string, targetLang string, text []string) ([]string, error
 	return translate.Translate(sourceLang, targetLang, text)
 }
 
+
+
 type Translate struct {
 }
 
 func (this *Translate) Translate(sourceLang string, targetLang string, text []string) ([]string, error) {
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 20*time.Second,
+		Transport: &http.Transport{
+			//Proxy: func(_ *http.Request) (*url.URL, error) {
+			//	return url.Parse("socket5://127.0.0.1:7890")
+			//},
+		},
+	}
 	queryString := ""
 	for _, v := range text {
 		queryString += fmt.Sprintf("&q=%s", url.QueryEscape(v))
 	}
 	var urls []string = []string{
+		"https://translate.googleapis.com",
 		"https://translate.google.cn",
-		//"https://translate.googleapis.com",
+		"https://translate.google.com",
+		"https://translate.google.jp",
+		"https://translate.google.ca",
+		"https://translate.google.it",
+		"https://translate.google.us",
+		"https://translate.google.com.hk",
+		"https://translate.google.com.tw",
+		"https://translate.google.com.ru",
+		"https://translate.google.ae",
+		"https://translate.google.co.in",
+		"https://translate.google.de",
+		"https://translate.google.com.sa",
+		"https://translate.google.com.np",
+		"https://translate.google.fr",
+		"https://translate.google.co.uk",
+		"https://translate.google.gr",
+		"https://translate.google.pt",
+		"https://translate.google.es",
+		"https://translate.google.co.il",
+		"https://translate.google.se",
+		"https://translate.google.nl",
+		"https://translate.google.be",
+		"https://translate.google.at",
+		"https://translate.google.pl",
+		"https://translate.google.pl",
+		"https://translate.google.co.th",
+		"https://translate.google.com.sg",
+		"https://translate.google.com.my",
+		"https://translate.google.com.ru",
+		"https://translate.google.es",
+		"https://translate.google.pt",
+		"https://translate.google.fi",
+		"https://translate.google.ro",
+		"https://translate.google.dk",
+		"https://translate.google.no",
+		"https://translate.google.com.au",
+		"https://translate.google.co.nz",
+		"https://translate.google.ca",
+		"https://translate.google.com.br",
+		"https://translate.google.com.ar",
+		"https://translate.google.cl",
+		"https://translate.google.com.pe",
+		"https://translate.google.com.eg",
+		"https://translate.google.com.pa",
+		"https://translate.google.lt",
+		"https://translate.google.bi",
+		"https://translate.google.pn",
+		"https://translate.google.li",
+		"https://translate.google.com.nf",
+		"https://translate.google.vg",
+		"https://translate.google.mw",
+		"https://translate.google.fm",
+		"https://translate.google.sh",
+		"https://translate.google.cd",
+		"https://translate.google.ms",
+		"https://translate.google.co.cr",
+		"https://translate.google.lv",
+		"https://translate.google.ie",
+		"https://translate.google.co.je",
+		"https://translate.google.com.py",
+		"https://translate.google.gm",
+		"https://translate.google.td",
+		"https://translate.google.com.ua",
+		"https://translate.google.co.ve",
+		"https://translate.google.com.tr",
+		"https://translate.google.com.mt",
+		"https://translate.google.com.uy",
+		"https://translate.google.hn",
+		"https://translate.google.com.ni",
+		"https://translate.google.gl",
+		"https://translate.google.kz",
+		"https://translate.google.sm",
+		"https://translate.google.uz",
+		"https://translate.google.rw",
+		"https://translate.google.com.tj",
 	}
 	var resp *http.Response
 	var err error
@@ -45,7 +130,6 @@ func (this *Translate) Translate(sourceLang string, targetLang string, text []st
 			continue
 		}
 		request.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36")
-
 		resp, err = client.Do(request)
 		if err == nil && resp.StatusCode == 200 {
 			break
