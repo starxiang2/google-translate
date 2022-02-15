@@ -112,13 +112,15 @@ func (this *Translate) Translate(sourceLang string, targetLang string, text []st
 	var resp *http.Response
 	var err error
 	for _, apiUrl := range urls {
-		apiUrl = fmt.Sprintf("%s/translate_a/t?anno=3&client=te_lib&format=html&v=1.0&sl=%s&tl=%s&tk=%s&mode=1", apiUrl, sourceLang, targetLang, this.getTk(text))
+		apiUrl = fmt.Sprintf("%s/translate_a/t?anno=3&client=te_lib&format=html&sl=%s&tl=%s&tk=%s&mode=1", apiUrl, sourceLang, targetLang, this.getTk(text))
 		request, err := http.NewRequest("POST", apiUrl, strings.NewReader(strings.Trim(queryString, "&")))
+
 		if err != nil {
 			fmt.Println("err", err.Error())
 			continue
 		}
 		request.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36")
+		request.Header.Set("content-type", "application/x-www-form-urlencoded")
 		resp, err = this.client.Do(request)
 		if err == nil && resp.StatusCode == 200 {
 			break
@@ -131,6 +133,9 @@ func (this *Translate) Translate(sourceLang string, targetLang string, text []st
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
+	}
+	if string(body) == "[]" {
+		return nil,errors.New("接口返回空，翻译失败！")
 	}
 	var slice []string
 	if len(text) == 1 {
