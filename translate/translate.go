@@ -138,12 +138,9 @@ func (this *Translate) Translate(sourceLang string, targetLang string, text []st
 		return nil,errors.New("接口返回空，翻译失败！")
 	}
 	var slice []string
-	if len(text) == 1 {
-		slice = append(slice, strings.Trim(string(body), `"`))
-	} else {
-		if err = json.Unmarshal(body, &slice); err != nil {
-			return nil, errors.New("解析数据失败")
-		}
+
+	if err = json.Unmarshal(body, &slice); err != nil {
+		return nil, errors.New("解析数据失败")
 	}
 
 	res, _ := regexp.Compile("(?U)<i>.*</i>")
