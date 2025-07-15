@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 )
-
 
 func New() *Translate {
 	return &Translate{
@@ -23,7 +22,6 @@ func New() *Translate {
 type Translate struct {
 	client *http.Client
 }
-
 
 func (this *Translate) Translate(sourceLang string, targetLang string, text []string) ([]string, error) {
 	queryString := ""
@@ -130,12 +128,13 @@ func (this *Translate) Translate(sourceLang string, targetLang string, text []st
 		return nil, errors.New("请求接口失败")
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
 	}
 	if string(body) == "[]" {
-		return nil,errors.New("接口返回空，翻译失败！")
+		return nil, errors.New("接口返回空，翻译失败！")
 	}
 	var slice []string
 
@@ -208,9 +207,8 @@ func (this *Translate) hq(char int, chunk string) int {
 	return char
 }
 
-
 func (this *Translate) SetProxy(proxyURL string) error {
-	proxy ,err := url.Parse(proxyURL)
+	proxy, err := url.Parse(proxyURL)
 	if err != nil {
 		return err
 	}
